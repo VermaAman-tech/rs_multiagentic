@@ -1,0 +1,63 @@
+# Experiment hyperparameters and paths
+
+stage1:
+  damage_mlp:
+    epochs: 10
+    batch_size: 64
+    learning_rate: 2.0e-4
+    input_dim: 768
+    hidden_dim: 256
+    num_classes: 4
+    train_samples: 2000
+    test_split: 0.2
+    checkpoint_path: "models/weights/prithvi/damage_mlp.pt"
+    results_path: "results/stage1_damage_mlp.json"
+
+  change_head:
+    epochs: 10
+    batch_size: 64
+    learning_rate: 2.0e-4
+    lstm_hidden: 64
+    lstm_layers: 2
+    sequence_length: 6
+    num_classes: 4
+    train_samples: 2000
+    test_split: 0.2
+    checkpoint_path: "models/weights/prithvi/phase_lstm.pt"
+    results_path: "results/stage1_change_head.json"
+
+stage2:
+  lora:
+    rank: 16
+    alpha: 32
+    epochs: 3
+    learning_rate: 2.0e-4
+    data_path: "data/toolchain_train.jsonl"
+
+stage3:
+  dpo:
+    epochs: 1
+    learning_rate: 5.0e-7
+    beta: 0.1
+    data_path: "data/alignment_pairs.jsonl"
+
+benchmarks:
+  e2_oea:
+    data_path: "data/openearthagent_eval_public.jsonl"
+    results_path: "results/e2_oea.json"
+    max_samples: null
+
+  e5_thinkgeo:
+    data_path: "data/thinkgeo_eval_public.jsonl"
+    results_path: "results/e5_thinkgeo.json"
+    max_samples: null
+
+ablations:
+  - A1_no_deadlock
+  - A2_no_conflict
+  - A3_no_compression
+  - A4_no_prithvi
+  - A5_single_agent
+  - A6_no_react
+  - A7_no_memory
+  - A8_no_verify

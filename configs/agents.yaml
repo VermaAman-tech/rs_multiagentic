@@ -1,0 +1,58 @@
+vra:
+  tool_server: "http://localhost:9000"
+  max_react_turns: 12
+  working_memory_tokens: 4096
+  tools:
+    - GetBboxFromGeotiff
+    - ObjectDetection
+    - SegmentObjectPixels
+    - ImageDescription
+    - TextToBbox
+    - RegionAttributeDescription
+    - CountGivenObject
+    - OCR
+    - ChangeDetection
+    - DrawBox
+    - AddText
+    - AddIndexLayer
+    - ComputeIndexChange
+    - ShowIndexLayer
+    - TemporalStackLoader
+    - PrithviEmbed
+
+ga:
+  tool_server: "http://localhost:9000"
+  max_react_turns: 8
+  working_memory_tokens: 4096
+  tools:
+    - GetAreaBoundary
+    - AddPoisLayer
+    - GetBboxFromGeotiff
+    - ComputeDistance
+    - DisplayOnMap
+    - DisplayOnGeotiff
+    - RoadDamageScorer
+
+pa:
+  tool_server: "http://localhost:9000"
+  max_react_turns: 10
+  working_memory_tokens: 4096
+  tools:
+    - EvacuationRoutePlanner
+    - ComputeDistance
+    - Calculator
+    - Solver
+    - Plot
+
+orc:
+  tool_server: "http://localhost:9000"
+  max_react_turns: 20
+  episodic_memory_soft_limit_tokens: 32000
+  episodic_memory_hard_limit_tokens: 64000
+  compression_trigger: 0.80
+  deadlock_timeout_seconds: 30
+  conflict_confidence_gap: 0.20
+  tools:
+    - GoogleSearch
+    - Calculator
+    - Terminate

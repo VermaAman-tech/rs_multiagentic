@@ -1,0 +1,76 @@
+server:
+  host: "localhost"
+  port: 9000
+  workers: 4
+
+defaults:
+  timeout_seconds: 30
+
+tools:
+  # Vision tools
+  ObjectDetection:
+    timeout_seconds: 30
+  SegmentObjectPixels:
+    timeout_seconds: 30
+  ImageDescription:
+    timeout_seconds: 20
+  TextToBbox:
+    timeout_seconds: 20
+  RegionAttributeDescription:
+    timeout_seconds: 20
+  CountGivenObject:
+    timeout_seconds: 20
+  OCR:
+    timeout_seconds: 20
+  ChangeDetection:
+    timeout_seconds: 45
+  DrawBox:
+    timeout_seconds: 10
+  AddText:
+    timeout_seconds: 10
+
+  # GIS tools
+  GetAreaBoundary:
+    timeout_seconds: 15
+  AddPoisLayer:
+    timeout_seconds: 15
+  ComputeDistance:
+    timeout_seconds: 10
+  DisplayOnMap:
+    timeout_seconds: 15
+  GetBboxFromGeotiff:
+    timeout_seconds: 10
+  DisplayOnGeotiff:
+    timeout_seconds: 15
+
+  # Spectral tools
+  AddIndexLayer:
+    timeout_seconds: 20
+  ComputeIndexChange:
+    timeout_seconds: 20
+  ShowIndexLayer:
+    timeout_seconds: 15
+
+  # Math tools
+  Calculator:
+    timeout_seconds: 10
+  Solver:
+    timeout_seconds: 15
+  Plot:
+    timeout_seconds: 15
+
+  # Utility tools
+  GoogleSearch:
+    timeout_seconds: 20
+  Terminate:
+    timeout_seconds: 5
+
+  # Novel tools
+  TemporalStackLoader:
+    timeout_seconds: 120
+  RoadDamageScorer:
+    timeout_seconds: 60
+  EvacuationRoutePlanner:
+    timeout_seconds: 90
+  PrithviEmbed:
+    timeout_seconds: 60

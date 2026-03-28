@@ -1,0 +1,37 @@
+vra:
+  model_id: "Qwen/Qwen3-VL-72B-Instruct"
+  vllm_port: 8001
+  tensor_parallel: 1
+  max_model_len: 32768
+  thinking_mode: selective
+  lora_path: null
+
+ga:
+  model_id: "Qwen/Qwen3-32B"
+  vllm_port: 8002
+  tensor_parallel: 1
+  max_model_len: 32768
+  thinking_mode: selective
+  lora_path: null
+
+pa:
+  model_id: "Qwen/Qwen3-32B"
+  vllm_port: 8002
+  tensor_parallel: 1
+  max_model_len: 32768
+  thinking_mode: always
+  lora_path: null
+
+orc:
+  model_id: "Qwen/Qwen3-30B-A3B"
+  vllm_port: 8000
+  tensor_parallel: 1
+  max_model_len: 32768
+  thinking_mode: always
+  fp8_quantization: true
+  lora_path: null
+
+prithvi:
+  model_id: "ibm-nasa-geospatial/Prithvi-300M"
+  damage_mlp_path: null
+  phase_lstm_path: null
