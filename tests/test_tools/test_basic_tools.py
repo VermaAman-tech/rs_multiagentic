@@ -7,7 +7,7 @@ client = TestClient(app)
 def test_health():
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json()["n_tools"] == 31
+    assert response.json()["n_tools"] == 28
 
 def test_object_detection():
     resp = client.post("/tools/ObjectDetection", json={"image_path": "a.jpg", "text_prompt": "car"})

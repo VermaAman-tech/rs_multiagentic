@@ -1,10 +1,9 @@
 """
-ThinkGeo Full Inference Evaluator — Qwen2.5-14B-Instruct (text-only)
+ThinkGeo Full Inference Evaluator — Qwen3-4B-Instruct-2507 (text-only)
 Computes: TSR (Task Success Rate) and HRR (Hallucination Rejection Rate).
 
 Fix over previous version:
-  - Switched from Qwen2.5-VL-3B (crashed: multi-modal embeddings need 32768 tokens
-    but max_model_len was 8192) to Qwen2.5-14B-Instruct (text-only, stable).
+    - Uses Qwen3-4B-Instruct-2507 (text-only, stable) as required by plan.
   - Per-task tool descriptions still included in system prompt.
   - Full verbose per-sample trace: full prompt, full raw output, gt/pred, scores.
 """
@@ -203,7 +202,7 @@ def build_eval_instances(items: list) -> list[dict]:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="Qwen/Qwen2.5-14B-Instruct")
+    parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
     parser.add_argument("--tg-data", default="data/thinkgeo/ThinkGeoBench.json")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--output", default="results/e5_thinkgeo_real.json")

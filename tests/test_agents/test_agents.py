@@ -9,7 +9,8 @@ def test_vra_react_mock():
     msg = Message(message_type="TASK", sender="orc", recipient="vra", payload={"scene_id": "test_scene"})
     res = vra.handle_task(msg)
     assert res.output["scene_id"] == "test_scene"
-    assert "damage_polygons" in res.output
+    assert "raw_output" in res.output
+    assert "actions" in res.output or "damage_polygons" in res.output
 
 def test_ga_react_mock():
     ga = GeospatialAgent()

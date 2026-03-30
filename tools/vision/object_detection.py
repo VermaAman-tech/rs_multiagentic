@@ -8,7 +8,12 @@ def run(req):
         img = Image.open(req.image_path).convert("RGB")
         img_np = np.array(img)
         model = get_gdino()
-        text_prompt = ", ".join(req.object_classes) if (hasattr(req, "object_classes") and req.object_classes) else "building . road . vehicle . person"
+        if hasattr(req, "text_prompt") and req.text_prompt:
+            text_prompt = req.text_prompt
+        elif hasattr(req, "object_classes") and req.object_classes:
+            text_prompt = ", ".join(req.object_classes)
+        else:
+            text_prompt = "building . road . vehicle . person"
         boxes, logits, phrases = predict(
             model=model,
             image=img_np,

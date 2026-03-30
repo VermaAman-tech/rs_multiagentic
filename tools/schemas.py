@@ -27,6 +27,7 @@ class EvacuationRoutePlannerInput(BaseModel):
     origins: list[str]
     destinations: list[str]
     blocked_segments: list[str] = []
+    mode: str = "evacuation"
 
 class EvacuationRoutePlannerOutput(BaseModel):
     routes: list[dict]
@@ -152,14 +153,21 @@ class GetBboxFromGeotiffOutput(BaseModel):
     bbox: List[float]
     crs: str
 
-class DisplayOnGeotiffInput(BaseModel):
+class DisplayGeotiffInput(BaseModel):
     geotiff_path: str
     features: List[Dict[str, Any]]
     output_path: str
 
-class DisplayOnGeotiffOutput(BaseModel):
+class DisplayGeotiffOutput(BaseModel):
     success: bool
     raster_path: str
+
+# Backward-compat aliases
+class DisplayOnGeotiffInput(DisplayGeotiffInput):
+    pass
+
+class DisplayOnGeotiffOutput(DisplayGeotiffOutput):
+    pass
 
 # --- SPECTRAL TOOLS ---
 
@@ -206,17 +214,24 @@ class PlotInput(BaseModel):
 
 class PlotOutput(BaseModel):
     success: bool
+    output_path: Optional[str] = None
+    error: Optional[str] = None
 
 # --- UTILITY TOOLS ---
 
 class GoogleSearchInput(BaseModel):
     query: str
+    k: int = 10
 
 class GoogleSearchOutput(BaseModel):
     results: List[str]
+    n_results: int = 0
+    success: bool = True
 
 class TerminateInput(BaseModel):
-    final_answer: Any
+    final_answer: Any = None
+    ans: Any = None
 
 class TerminateOutput(BaseModel):
     status: str
+    final_answer: Any = None

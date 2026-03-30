@@ -1,5 +1,5 @@
 """
-OEA Full Inference Evaluator — Vision-Language Model (e.g. Qwen2.5-VL)
+OEA Full Inference Evaluator — Vision-Language Model (Qwen3-VL-4B-Instruct)
 Computes: Inst, Tool, ArgN, ArgV per tool-call step.
 
 This script supports both text-only and vision-language models:
@@ -179,7 +179,7 @@ def build_eval_instances(oea_data: list, img_dir: str = "data/openearth_agent",
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="Qwen/Qwen2.5-VL-3B-Instruct")
+    parser.add_argument("--model", default="Qwen/Qwen3-VL-4B-Instruct")
     parser.add_argument("--oea-data", default="data/openearth_agent/test.json")
     parser.add_argument("--img-dir", default="data/openearth_agent")
     parser.add_argument("--limit", type=int, default=0, help="0 = all samples")

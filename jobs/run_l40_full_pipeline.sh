@@ -20,7 +20,7 @@ export CUDA_VISIBLE_DEVICES=0
 export PYTHONPATH="${PYTHONPATH:-}:$(pwd)"
 
 # Use text-only model — avoids all Triton/multi-modal kernel compilation issues
-MODEL="Qwen/Qwen2.5-14B-Instruct"
+MODEL="Qwen/Qwen3-4B-Instruct-2507"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo "========================================================"

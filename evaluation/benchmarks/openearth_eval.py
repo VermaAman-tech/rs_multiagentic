@@ -1,8 +1,7 @@
 """
 Real E2 OpenEarthAgent Evaluation
 Evaluates MAGRF's tool-calling accuracy against the actual OEA test.json ground truth.
-Since we cannot run the full vLLM inference loop without the 30B model loaded,
-we evaluate the TOOL MATCHING component: given the ground-truth conversation,
+This version uses Qwen3-4B-Instruct-2507 as per plan. We evaluate the TOOL MATCHING component: given the ground-truth conversation,
 we measure how many of the 24 tool types our framework's tool server can handle.
 """
 import json, os, argparse
@@ -111,7 +110,7 @@ def main():
             "Missing_Tools": list(missing_tools),
         },
         "gt_tool_distribution": dict(gt_tools.most_common()),
-        "note": "Tool coverage and argument validity measured against ground-truth conversations. Full inference metrics (Inst, ArgV, Summ) require vLLM model server running with Qwen3-30B-A3B."
+        "note": "Tool coverage and argument validity measured against ground-truth conversations. Full inference metrics (Inst, ArgV, Summ) require vLLM model server running with Qwen3-4B-Instruct-2507 as per plan."
     }
 
     with open(args.output, "w") as f:

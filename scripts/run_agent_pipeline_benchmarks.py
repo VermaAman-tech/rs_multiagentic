@@ -25,17 +25,65 @@ def _next_eval_dir(root: Path) -> Path:
     return out
 
 
-def _load_jsonl(path: Path, limit: int) -> list[dict[str, Any]]:
+def _load_dataset(path: Path, limit: int) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
+    if not path.exists():
+        return rows
+
+    if path.suffix == ".jsonl":
+        with path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                rows.append(json.loads(line))
+                if limit > 0 and len(rows) >= limit:
+                    break
+        return rows
+
     with path.open("r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            rows.append(json.loads(line))
-            if limit > 0 and len(rows) >= limit:
-                break
-    return rows
+        data = json.load(f)
+
+    parsed_rows: list[dict[str, Any]] = []
+    if isinstance(data, list):
+        # OpenEarthAgent style test.json
+        for item in data:
+            q = ""
+            if "conversation" in item:
+                for msg in item["conversation"]:
+                    if msg.get("from") == "human":
+                        val = msg.get("value", "").replace("<AGENT_PROMPT>", "").strip()
+                        q = val.split("Question:")[-1].strip() if "Question:" in val else val
+                        if q:
+                            break
+            parsed_rows.append(
+                {
+                    "id": str(item.get("idx", len(parsed_rows))),
+                    "question": q,
+                    "source": "openearth",
+                }
+            )
+    elif isinstance(data, dict):
+        # ThinkGeoBench style ThinkGeoBench.json
+        for key, item in data.items():
+            q = ""
+            if "dialogs" in item:
+                for msg in item["dialogs"]:
+                    if msg.get("role") == "user":
+                        q = msg.get("content", "").strip()
+                        break
+            parsed_rows.append(
+                {
+                    "id": str(key),
+                    "question": q,
+                    "answer": item.get("gt_answer"),
+                    "source": "thinkgeo",
+                }
+            )
+
+    if limit > 0:
+        parsed_rows = parsed_rows[:limit]
+    return parsed_rows
 
 
 def _build_task(row: dict[str, Any], benchmark: str, idx: int) -> dict[str, Any]:
@@ -53,12 +101,20 @@ def _build_task(row: dict[str, Any], benchmark: str, idx: int) -> dict[str, Any]
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run strict 4-agent pipeline on OEA + ThinkGeo public datasets.")
-    parser.add_argument("--oea-path", default="data/openearthagent_eval_public.jsonl")
-    parser.add_argument("--thinkgeo-path", default="data/thinkgeo_eval_public.jsonl")
+    parser.add_argument("--oea-path", default="data/openearth_agent/test.json")
+    parser.add_argument("--thinkgeo-path", default="data/thinkgeo/ThinkGeoBench.json")
     parser.add_argument("--oea-limit", type=int, default=200)
     parser.add_argument("--thinkgeo-limit", type=int, default=200)
-    parser.add_argument("--model-id", default="Qwen/Qwen2.5-14B-Instruct")
-    parser.add_argument("--base-url", default="http://127.0.0.1:8000/v1")
+    parser.add_argument("--model-id", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--base-url", default="http://127.0.0.1:8002/v1")
+    parser.add_argument("--orc-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--vra-model-id", default="Qwen/Qwen3-VL-4B-Instruct")
+    parser.add_argument("--ga-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--pa-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--orc-base-url", default="http://127.0.0.1:8002/v1")
+    parser.add_argument("--vra-base-url", default="http://127.0.0.1:8001/v1")
+    parser.add_argument("--ga-base-url", default="http://127.0.0.1:8002/v1")
+    parser.add_argument("--pa-base-url", default="http://127.0.0.1:8002/v1")
     parser.add_argument("--tool-server", default="http://127.0.0.1:9000")
     parser.add_argument("--max-turns", type=int, default=4)
     parser.add_argument("--strict-no-mock-fallback", action="store_true")
@@ -68,16 +124,31 @@ def main() -> None:
     out_dir = _next_eval_dir(Path(args.out_root))
     print(f"Evaluation output dir: {out_dir}")
 
+    agent_model_map = {
+        "orc": args.orc_model_id,
+        "vra": args.vra_model_id,
+        "ga": args.ga_model_id,
+        "pa": args.pa_model_id,
+    }
+    agent_base_url_map = {
+        "orc": args.orc_base_url,
+        "vra": args.vra_base_url,
+        "ga": args.ga_base_url,
+        "pa": args.pa_base_url,
+    }
+
     runner = EpisodeRunner(
         model_id=args.model_id,
         base_url=args.base_url,
         tool_server=args.tool_server,
+        agent_model_map=agent_model_map,
+        agent_base_url_map=agent_base_url_map,
         allow_mock_fallback=not args.strict_no_mock_fallback,
         max_turns=args.max_turns,
     )
 
-    oea_rows = _load_jsonl(Path(args.oea_path), args.oea_limit)
-    tg_rows = _load_jsonl(Path(args.thinkgeo_path), args.thinkgeo_limit)
+    oea_rows = _load_dataset(Path(args.oea_path), args.oea_limit)
+    tg_rows = _load_dataset(Path(args.thinkgeo_path), args.thinkgeo_limit)
 
     manifest: dict[str, Any] = {
         "created_at": datetime.utcnow().isoformat() + "Z",
@@ -100,7 +171,8 @@ def main() -> None:
                 rec["ok"] = True
                 rec["run_dir"] = ep.get("run_dir")
                 rec["result"] = ep.get("result")
-                rec["ccq"] = ep.get("ccq")
+                rec["metrics"] = ep.get("metrics", {})
+                rec["ccq"] = rec["metrics"].get("ccq")
             except Exception as e:
                 rec["ok"] = False
                 rec["error"] = str(e)

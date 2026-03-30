@@ -21,8 +21,9 @@ export VLLM_WORKER_MULTIPROC_METHOD=spawn
 export VLLM_USE_V1=0
 
 cleanup() {
-  kill "${VLLM_PID:-}" "${TOOL_PID:-}" >/dev/null 2>&1 || true
-  wait "${VLLM_PID:-}" >/dev/null 2>&1 || true
+  kill "${VLLM_SHARED_PID:-}" "${VLLM_VRA_PID:-}" "${TOOL_PID:-}" >/dev/null 2>&1 || true
+  wait "${VLLM_SHARED_PID:-}" >/dev/null 2>&1 || true
+  wait "${VLLM_VRA_PID:-}" >/dev/null 2>&1 || true
   wait "${TOOL_PID:-}" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -30,20 +31,32 @@ trap cleanup EXIT
 uvicorn tools.server:app --host 127.0.0.1 --port 9000 > logs/tool_server_agenttrace.log 2>&1 &
 TOOL_PID=$!
 
-vllm serve Qwen/Qwen2.5-14B-Instruct \
+CUDA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen3-4B-Instruct-2507 \
   --host 127.0.0.1 \
-  --port 8000 \
+  --port 8002 \
   --tensor-parallel-size 1 \
   --max-model-len 4096 \
   --gpu-memory-utilization 0.90 \
   --enforce-eager \
   --enable-auto-tool-choice \
   --tool-call-parser hermes \
-  > logs/vllm_agenttrace.log 2>&1 &
-VLLM_PID=$!
+  > logs/vllm_shared_agenttrace.log 2>&1 &
+VLLM_SHARED_PID=$!
+
+CUDA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen3-VL-4B-Instruct \
+  --host 127.0.0.1 \
+  --port 8001 \
+  --tensor-parallel-size 1 \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.90 \
+  --enforce-eager \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes \
+  > logs/vllm_vra_agenttrace.log 2>&1 &
+VLLM_VRA_PID=$!
 
 for i in $(seq 1 90); do
-  if curl -sf http://127.0.0.1:8000/v1/models >/dev/null; then
+  if curl -sf http://127.0.0.1:8002/v1/models >/dev/null && curl -sf http://127.0.0.1:8001/v1/models >/dev/null; then
     break
   fi
   sleep 5
@@ -51,8 +64,16 @@ done
 
 python scripts/run_detailed_agent_trace.py \
   --query "Plan safest evacuation route to nearest shelter after flood with damaged roads and blocked segments" \
-  --model-id "Qwen/Qwen2.5-14B-Instruct" \
-  --base-url "http://127.0.0.1:8000/v1" \
+  --model-id "Qwen/Qwen3-4B-Instruct-2507" \
+  --base-url "http://127.0.0.1:8002/v1" \
+  --orc-model-id "Qwen/Qwen3-4B-Instruct-2507" \
+  --ga-model-id "Qwen/Qwen3-4B-Instruct-2507" \
+  --pa-model-id "Qwen/Qwen3-4B-Instruct-2507" \
+  --vra-model-id "Qwen/Qwen3-VL-4B-Instruct" \
+  --orc-base-url "http://127.0.0.1:8002/v1" \
+  --ga-base-url "http://127.0.0.1:8002/v1" \
+  --pa-base-url "http://127.0.0.1:8002/v1" \
+  --vra-base-url "http://127.0.0.1:8001/v1" \
   --tool-server "http://127.0.0.1:9000" \
   --strict-no-mock-fallback
 

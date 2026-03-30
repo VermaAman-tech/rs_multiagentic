@@ -18,13 +18,13 @@ export VLLM_WORKER_MULTIPROC_METHOD=spawn
 export CUDA_VISIBLE_DEVICES=0
 
 echo "================================================================"
-echo "MAGRF Native Inference Evaluation (Qwen2.5-VL-3B-Instruct) — Job ${SLURM_JOB_ID:-local}"
+echo "MAGRF Native Inference Evaluation (Qwen3-VL-4B-Instruct) — Job ${SLURM_JOB_ID:-local}"
 echo "================================================================"
 
 echo ">>> Running OEA Inference (636 instances)..."
-python evaluation/benchmarks/run_real_inference.py --model Qwen/Qwen2.5-VL-3B-Instruct
+python evaluation/benchmarks/run_real_inference.py --model Qwen/Qwen3-VL-4B-Instruct
 
 echo ">>> Running ThinkGeo Inference (436 instances)..."
-python evaluation/benchmarks/run_thinkgeo_inference.py --model Qwen/Qwen2.5-VL-3B-Instruct
+python evaluation/benchmarks/run_thinkgeo_inference.py --model Qwen/Qwen3-4B-Instruct-2507
 
 echo "All native VLM evaluations complete."

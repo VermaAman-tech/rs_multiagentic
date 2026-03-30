@@ -17,7 +17,7 @@ export HF_HUB_OFFLINE=1
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
 export VLLM_USE_V1=0
 
-MODEL="Qwen/Qwen2.5-14B-Instruct"
+MODEL="Qwen/Qwen3-4B-Instruct-2507"
 
 echo "================================================================"
 echo "MAGRF Verbose Inference Evaluation — ${MODEL}"

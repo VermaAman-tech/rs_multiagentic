@@ -14,12 +14,15 @@ class MemoryRecord:
 class EpisodicMemory:
     def __init__(self) -> None:
         self._store: Dict[str, MemoryRecord] = {}
+        self._history: Dict[str, list[MemoryRecord]] = {}
         self.ccq: float = 1.0
 
     def write(self, key: str, value: Any) -> int:
         prev = self._store.get(key)
         version = 1 if prev is None else prev.version + 1
-        self._store[key] = MemoryRecord(version=version, value=copy.deepcopy(value))
+        rec = MemoryRecord(version=version, value=copy.deepcopy(value))
+        self._store[key] = rec
+        self._history.setdefault(key, []).append(rec)
         return version
 
     def read(self, key: str, default: Any | None = None) -> Any:
@@ -34,6 +37,13 @@ class EpisodicMemory:
 
     def set_items(self, new_items: dict[str, Any], ccq: float) -> None:
         self._store.clear()
+        self._history.clear()
         for k, v in new_items.items():
             self.write(k, v)
         self.ccq = ccq
+
+    def history(self, key: str) -> list[dict[str, Any]]:
+        return [
+            {"version": rec.version, "value": copy.deepcopy(rec.value)}
+            for rec in self._history.get(key, [])
+        ]

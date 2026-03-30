@@ -65,14 +65,14 @@ echo ""
 echo ">>> Step 6: E2 OpenEarthAgent Evaluation (1,169 real samples)..."
 export HF_HUB_OFFLINE=1
 python evaluation/benchmarks/run_deepseek_inference.py \
-    --model Qwen/Qwen2.5-14B-Instruct \
+    --model Qwen/Qwen3-4B-Instruct-2507 \
     --oea-data data/openearth_agent/test.json \
     --output results/e2_oea_real.json
 
 echo ""
 echo ">>> Step 7: E5 ThinkGeo Evaluation (436 real tasks)..."
 python evaluation/benchmarks/run_thinkgeo_inference.py \
-    --model Qwen/Qwen2.5-VL-3B-Instruct \
+    --model Qwen/Qwen3-4B-Instruct-2507 \
     --tg-data data/thinkgeo/ThinkGeoBench.json \
     --output results/e5_thinkgeo_real.json
 

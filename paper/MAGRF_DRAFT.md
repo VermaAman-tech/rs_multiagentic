@@ -14,7 +14,7 @@ Previous iterations like OpenEarthAgent provide static ReAct tool wrappers. Our 
 
 ## 3. Framework Architecture
 MAGRF consists of four LLM endpoints:
-- **ORC (Orchestrator)**: The supreme router (Qwen3-30B) load-balancing memory constraints and assigning specialized sub-tasks based heavily on syntactic dependencies (e.g., routing path tasks sent explicitly to PA).
+- **ORC (Orchestrator)**: The supreme router (Qwen3-4B-Instruct-2507, shared server) load-balancing memory constraints and assigning specialized sub-tasks based heavily on syntactic dependencies (e.g., routing path tasks sent explicitly to PA).
 - **VRA (Vision Reasoning Agent)**: Integrates SAM2 bounds and GroundingDINO to decipher remote sensing semantics.
 - **GA (Geospatial Agent)**: Operates entirely on OSMnx arrays calculating distance boundaries and shapefiles.
 - **PA (Planning Agent)**: Translates multi-tool arrays into physical navigational paths integrating Route Safety Scores (RSS).

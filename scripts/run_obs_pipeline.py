@@ -33,9 +33,11 @@ def _load_dataset(path: Path, limit: int) -> list[dict[str, Any]]:
             q = ""
             if "conversation" in item:
                 for msg in item["conversation"]:
-                    if msg.get("from") == "human" and "Question:" in msg.get("value", ""):
-                        q = msg["value"].split("Question:")[-1].strip()
-                        break
+                    if msg.get("from") == "human":
+                        val = msg.get("value", "").replace("<AGENT_PROMPT>", "").strip()
+                        q = val.split("Question:")[-1].strip() if "Question:" in val else val
+                        if q:
+                            break
             
             parsed_rows.append({
                 "id": str(item.get("idx", len(parsed_rows))),
@@ -76,11 +78,19 @@ def _build_task(row: dict[str, Any], benchmark: str, idx: int) -> dict[str, Any]
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run observability pipeline on OEA + ThinkGeo datasets.")
-    parser.add_argument("--oea-path", default="data/openearthagent_eval_public.jsonl")
-    parser.add_argument("--thinkgeo-path", default="data/thinkgeo_eval_public.jsonl")
+    parser.add_argument("--oea-path", default="data/openearth_agent/test.json")
+    parser.add_argument("--thinkgeo-path", default="data/thinkgeo/ThinkGeoBench.json")
     parser.add_argument("--limit", type=int, default=200)
-    parser.add_argument("--model-id", default="Qwen/Qwen2.5-14B-Instruct")
-    parser.add_argument("--base-url", default="http://127.0.0.1:8000/v1")
+    parser.add_argument("--model-id", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--base-url", default="http://127.0.0.1:8002/v1")
+    parser.add_argument("--orc-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--vra-model-id", default="Qwen/Qwen3-VL-4B-Instruct")
+    parser.add_argument("--ga-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--pa-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--orc-base-url", default="http://127.0.0.1:8002/v1")
+    parser.add_argument("--vra-base-url", default="http://127.0.0.1:8001/v1")
+    parser.add_argument("--ga-base-url", default="http://127.0.0.1:8002/v1")
+    parser.add_argument("--pa-base-url", default="http://127.0.0.1:8002/v1")
     parser.add_argument("--tool-server", default="http://127.0.0.1:9000")
     parser.add_argument("--max-turns", type=int, default=15)
     parser.add_argument("--out-json", default="results/agent_benchmark_runs/full_pipeline_trace.json")
@@ -91,10 +101,25 @@ def main() -> None:
     out_file.parent.mkdir(parents=True, exist_ok=True)
     print(f"Logging full pipeline trace to: {out_file}")
 
+    agent_model_map = {
+        "orc": args.orc_model_id,
+        "vra": args.vra_model_id,
+        "ga": args.ga_model_id,
+        "pa": args.pa_model_id,
+    }
+    agent_base_url_map = {
+        "orc": args.orc_base_url,
+        "vra": args.vra_base_url,
+        "ga": args.ga_base_url,
+        "pa": args.pa_base_url,
+    }
+
     runner = EpisodeRunner(
         model_id=args.model_id,
         base_url=args.base_url,
         tool_server=args.tool_server,
+        agent_model_map=agent_model_map,
+        agent_base_url_map=agent_base_url_map,
         allow_mock_fallback=args.allow_mock_fallback,
         max_turns=args.max_turns,
     )

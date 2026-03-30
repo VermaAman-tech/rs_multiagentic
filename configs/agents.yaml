@@ -30,7 +30,7 @@ ga:
     - GetBboxFromGeotiff
     - ComputeDistance
     - DisplayOnMap
-    - DisplayOnGeotiff
+    - DisplayGeotiff
     - RoadDamageScorer
 
 pa:

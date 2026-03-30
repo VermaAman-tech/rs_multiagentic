@@ -40,6 +40,8 @@ tools:
     timeout_seconds: 15
   GetBboxFromGeotiff:
     timeout_seconds: 10
+  DisplayGeotiff:
+    timeout_seconds: 15
   DisplayOnGeotiff:
     timeout_seconds: 15
 

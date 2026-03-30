@@ -30,7 +30,7 @@ class BaseAgent:
     def __init__(
         self,
         model_id: str = "mock-model",
-        base_url: str = "http://localhost:8000/v1",
+        base_url: str = "http://localhost:8002/v1",
         tool_server: str = "http://localhost:9000",
         max_turns: int = 15,
         api_key: str = "sk-mock",
@@ -44,7 +44,11 @@ class BaseAgent:
         self.allow_mock_fallback = allow_mock_fallback
 
     def _get_system_prompt(self) -> str:
-        return f"You are the {self.name} agent. Use your tools to solve the task."
+        return (
+            f"You are the {self.name} agent. "
+            "Use strict ReAct loops: Think, call one tool at a time, observe output, then decide next action. "
+            "Return results grounded in tool evidence and avoid unsupported assumptions."
+        )
 
     def _call_llm(self, messages: list[dict], tools: list[dict]) -> dict:
         """

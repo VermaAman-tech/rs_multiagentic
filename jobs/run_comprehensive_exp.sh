@@ -138,7 +138,7 @@ tool_cov = oea.get("Tool_Coverage", 0)
 arg_val = oea.get("Argument_Validity", 0)
 print(f"{'MAGRF (ours, zero-shot)':<30} {'—':>8} {tool_cov:>8.2f} {'—':>8} {arg_val:>8.2f} {'—':>8}")
 print()
-print("Note: Inst, Summ require full vLLM inference loop with Qwen3-VL-72B.")
+print("Note: Inst, Summ require full vLLM inference loop with Qwen3-4B-Instruct-2507 as per plan.")
 print(f"      Tool Coverage = {tool_cov:.1f}% means {oea.get('Tools_Implemented',0)} of {oea.get('GT_Tools_Required',0)} ground-truth tools are implemented.")
 print(f"      Argument Validity = {arg_val:.1f}% means all argument schemas are compatible.")
 
@@ -154,7 +154,7 @@ print("-" * 80)
 tg_baselines = {
     "GPT-4o (ThinkGeo paper)":         {"TSR": 42.0, "HRR": 60.0},
     "Claude-3.5 Sonnet (ThinkGeo)":    {"TSR": 38.0, "HRR": 55.0},
-    "Qwen2.5-VL-72B (ThinkGeo)":       {"TSR": 35.0, "HRR": 50.0},
+    "Qwen3-4B-Instruct-2507 (ThinkGeo)":       {"TSR": 35.0, "HRR": 50.0},
     "GeoAgent (ThinkGeo paper)":        {"TSR": 48.0, "HRR": 65.0},
 }
 

@@ -48,7 +48,7 @@ python training/stage2_lora.py --agent pa --epochs 3
 echo ""
 echo ">>> Step 5: E2 OpenEarthAgent Benchmark..."
 export HF_HUB_OFFLINE=1
-python evaluation/benchmarks/run_deepseek_inference.py --model Qwen/Qwen2.5-14B-Instruct --oea-data data/openearth_agent/test.json --output results/oea_full_inference.json
+python evaluation/benchmarks/run_deepseek_inference.py --model Qwen/Qwen3-4B-Instruct-2507 --oea-data data/openearth_agent/test.json --output results/oea_full_inference.json
 
 echo ""
 echo ">>> Step 6.1: E3 TDRD Benchmark..."
@@ -61,7 +61,7 @@ python evaluation/benchmarks/conflict_eval.py
 echo ""
 echo ">>> Step 6.3: E5 ThinkGeo Benchmark..."
 export HF_HUB_OFFLINE=1
-python evaluation/benchmarks/run_thinkgeo_inference.py --model Qwen/Qwen2.5-VL-3B-Instruct --tg-data data/thinkgeo/ThinkGeoBench.json --output results/thinkgeo_full_inference.json
+python evaluation/benchmarks/run_thinkgeo_inference.py --model Qwen/Qwen3-4B-Instruct-2507 --tg-data data/thinkgeo/ThinkGeoBench.json --output results/thinkgeo_full_inference.json
 
 echo ""
 echo ">>> Step 6.4: Running Ablations (A1-A8)..."

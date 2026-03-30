@@ -83,7 +83,7 @@ def main():
             "Missing_Tools": list(missing_tools),
         },
         "gt_tool_distribution": dict(all_gt_tools.most_common()),
-        "note": "Tool coverage measured against ground-truth task definitions. Full inference metrics (TSR, HRR) require vLLM model server running with Qwen3-30B-A3B."
+        "note": "Tool coverage measured against ground-truth task definitions. Full inference metrics (TSR, HRR) require vLLM model server running with Qwen3-4B-Instruct-2507 as per plan."
     }
 
     with open(args.output, "w") as f:

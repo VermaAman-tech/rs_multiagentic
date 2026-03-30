@@ -12,5 +12,9 @@ setup(
         "pydantic==2.10.6",
         "httpx==0.28.1",
         "pyyaml==6.0.2",
+        "requests==2.32.3",
+        "Pillow==11.1.0",
+        "numpy==1.26.4",
+        "torch==2.6.0",
     ],
 )

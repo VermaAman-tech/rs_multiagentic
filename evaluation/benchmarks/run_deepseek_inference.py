@@ -295,7 +295,7 @@ def build_eval_instances(oea_data: list, limit: int = 0, text_only: bool = True)
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="Qwen/Qwen2.5-14B-Instruct")
+    parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
     parser.add_argument("--oea-data", default="data/openearth_agent/test.json")
     parser.add_argument("--limit", type=int, default=0, help="0 = all instances")
     parser.add_argument("--text-only", action="store_true", default=True,

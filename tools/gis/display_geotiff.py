@@ -12,4 +12,4 @@ def run(req):
             plt.close()
             return {"raster_path": out_path, "success": True}
     except Exception as e:
-        return {"raster_path": "data/tmp/map.png", "success": True}
+        return {"raster_path": "data/tmp/map.png", "success": False}
