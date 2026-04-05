@@ -11,4 +11,4 @@ def run(req):
         Image.fromarray(mask).save(out_path)
         return {"change_map_path": out_path, "changed_pixels": int((mask > 0).sum()), "success": True}
     except Exception as e:
-        return {"change_map_path": "data/tmp/change.tif", "changed_pixels": 100, "success": True}
+        return {"change_map_path": "", "changed_pixels": 0, "success": False, "error": str(e)}

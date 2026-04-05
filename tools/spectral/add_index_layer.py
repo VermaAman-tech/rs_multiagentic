@@ -15,14 +15,15 @@ def run(req):
         with rasterio.open(req.geotiff_path) as src:
             bands = src.read().astype(np.float32)
             meta = src.meta.copy()
-            transform = src.transform
         formula = INDEX_FORMULAS.get(req.index_name)
         if not formula:
             return {"index_array_path": "", "mean_val": 0.0, "success": False, "error": f"Unknown index: {req.index_name}"}
         
         index_arr = formula(bands)
-        # year extraction hack or fallback to default
-        out_path = req.geotiff_path.replace(".tif", f"_{req.index_name}_out.tif")
+        src_stem = Path(str(req.geotiff_path)).stem
+        out_dir = Path("data/tmp")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = str(out_dir / f"{src_stem}_{req.index_name}_out.tif")
         meta.update(count=1, dtype="float32")
         with rasterio.open(out_path, "w", **meta) as dst:
             dst.write(index_arr[np.newaxis])
@@ -30,4 +31,4 @@ def run(req):
                  "min": float(index_arr.min()), "max": float(index_arr.max())}
         return {"index_array_path": out_path, "mean_val": float(index_arr.mean()), "success": True}
     except Exception as e:
-        return {"index_array_path": "data/tmp/index.tif", "mean_val": 0.5, "success": True}
+        return {"index_array_path": "", "mean_val": 0.0, "success": False, "error": str(e)}

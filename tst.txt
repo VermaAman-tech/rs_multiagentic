@@ -1,0 +1,1 @@
+curl --location-trusted -u 22b3929@iitb.ac.in:58e547805bdf778a28fa365dd8727eda "https://internet-sso.iitb.ac.in/login.php" > /dev/null

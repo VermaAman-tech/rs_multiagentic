@@ -15,8 +15,14 @@ def _estimate_token_count(payload: dict[str, Any] | None) -> int:
 		text = json.dumps(payload, ensure_ascii=False)
 	except TypeError:
 		text = str(payload)
-	# Lightweight token estimate used for budget tracking.
-	return max(1, len(text) // 4)
+	try:
+		import tiktoken  # type: ignore
+
+		enc = tiktoken.get_encoding("cl100k_base")
+		return max(1, len(enc.encode(text)))
+	except Exception:
+		# Lightweight fallback token estimate.
+		return max(1, len(text) // 4)
 
 
 def _json_safe(value: Any) -> Any:

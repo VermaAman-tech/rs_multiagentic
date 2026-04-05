@@ -9,4 +9,4 @@ def run(req):
             return {"count": len(res.get("bboxes", [])), "success": True}
         return {"count": 0, "success": False, "error": res.get("error")}
     except Exception as e:
-        return {"count": 1, "success": True}
+        return {"count": 0, "success": False, "error": str(e)}

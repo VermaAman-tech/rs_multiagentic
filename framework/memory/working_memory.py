@@ -12,7 +12,8 @@ class WorkingMemory:
         self._buffer.append(text)
         self._token_estimate += t
         if self._token_estimate > self.token_limit:
-            self.flush()
+            self._buffer = []
+            self._token_estimate = 0
             return True
         return False
 

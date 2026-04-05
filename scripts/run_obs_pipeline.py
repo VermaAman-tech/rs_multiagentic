@@ -30,18 +30,19 @@ def _load_dataset(path: Path, limit: int) -> list[dict[str, Any]]:
     if isinstance(data, list):
         # OpenEarthAgent style test.json
         for item in data:
+            human_turns = _extract_oea_human_turns(item)
             q = ""
-            if "conversation" in item:
-                for msg in item["conversation"]:
-                    if msg.get("from") == "human":
-                        val = msg.get("value", "").replace("<AGENT_PROMPT>", "").strip()
-                        q = val.split("Question:")[-1].strip() if "Question:" in val else val
-                        if q:
-                            break
+            for turn in human_turns:
+                if not turn.upper().startswith("OBSERVATION"):
+                    q = turn
+                    break
+            if not q and human_turns:
+                q = human_turns[0]
             
             parsed_rows.append({
                 "id": str(item.get("idx", len(parsed_rows))),
                 "question": q,
+                "human_turns": human_turns,
                 "source": "openearth"
             })
     elif isinstance(data, dict):
@@ -66,7 +67,7 @@ def _load_dataset(path: Path, limit: int) -> list[dict[str, Any]]:
 
 def _build_task(row: dict[str, Any], benchmark: str, idx: int) -> dict[str, Any]:
     q = row.get("question") or row.get("prompt") or row.get("query") or ""
-    return {
+    task = {
         "objective": str(q),
         "scene_id": f"{benchmark}-scene-{row.get('id', idx)}",
         "region": benchmark,
@@ -75,6 +76,28 @@ def _build_task(row: dict[str, Any], benchmark: str, idx: int) -> dict[str, Any]
         "ground_truth": row.get("answer") or row.get("gt_answer"),
         "source": row.get("source"),
     }
+    if benchmark == "oea" and str(q).strip():
+        task["human_inputs"] = [str(q).strip()]
+    return task
+
+
+def _clean_oea_human_turn(value: Any) -> str:
+    text = str(value or "").replace("<AGENT_PROMPT>", "").strip()
+    if "Question:" in text:
+        text = text.split("Question:", 1)[1].strip()
+    return " ".join(text.split())
+
+
+def _extract_oea_human_turns(item: dict[str, Any]) -> list[str]:
+    out: list[str] = []
+    conv = item.get("conversation", []) if isinstance(item.get("conversation"), list) else []
+    for msg in conv:
+        if not isinstance(msg, dict) or msg.get("from") != "human":
+            continue
+        clean = _clean_oea_human_turn(msg.get("value", ""))
+        if clean:
+            out.append(clean)
+    return out
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run observability pipeline on OEA + ThinkGeo datasets.")
@@ -84,11 +107,11 @@ def main() -> None:
     parser.add_argument("--model-id", default="Qwen/Qwen3-4B-Instruct-2507")
     parser.add_argument("--base-url", default="http://127.0.0.1:8002/v1")
     parser.add_argument("--orc-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
-    parser.add_argument("--vra-model-id", default="Qwen/Qwen3-VL-4B-Instruct")
+    parser.add_argument("--vra-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
     parser.add_argument("--ga-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
     parser.add_argument("--pa-model-id", default="Qwen/Qwen3-4B-Instruct-2507")
     parser.add_argument("--orc-base-url", default="http://127.0.0.1:8002/v1")
-    parser.add_argument("--vra-base-url", default="http://127.0.0.1:8001/v1")
+    parser.add_argument("--vra-base-url", default="http://127.0.0.1:8002/v1")
     parser.add_argument("--ga-base-url", default="http://127.0.0.1:8002/v1")
     parser.add_argument("--pa-base-url", default="http://127.0.0.1:8002/v1")
     parser.add_argument("--tool-server", default="http://127.0.0.1:9000")

@@ -1,13 +1,24 @@
 """DisplayOnGeotiff tool - renders vector overlays on top of a GeoTIFF."""
 
-def display_on_geotiff(geotiff_path: str, gpkg_path: str = None, layer_name: str = None) -> dict:
+from pathlib import Path
+
+
+def display_on_geotiff(
+    geotiff_path: str,
+    gpkg_path: str = None,
+    layer_name: str = None,
+    features: list | None = None,
+    output_path: str | None = None,
+) -> dict:
     """Overlay vector data on a GeoTIFF and return the rendered image path."""
     try:
         import rasterio
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-        from pathlib import Path
+
+        if not geotiff_path or not Path(geotiff_path).exists():
+            raise FileNotFoundError(f"GeoTIFF not found: {geotiff_path}")
 
         with rasterio.open(geotiff_path) as src:
             data = src.read([1, 2, 3]) if src.count >= 3 else src.read(1)
@@ -24,9 +35,30 @@ def display_on_geotiff(geotiff_path: str, gpkg_path: str = None, layer_name: str
             gdf = gpd.read_file(gpkg_path, layer=layer_name)
             gdf.plot(ax=ax, edgecolor="red", facecolor="none", linewidth=2)
 
-        out_path = str(Path(geotiff_path).with_suffix(".overlay.png"))
+        if isinstance(features, list) and features:
+            xs = []
+            ys = []
+            for feat in features:
+                if not isinstance(feat, dict):
+                    continue
+                if isinstance(feat.get("lon"), (int, float)) and isinstance(feat.get("lat"), (int, float)):
+                    xs.append(float(feat["lon"]))
+                    ys.append(float(feat["lat"]))
+            if xs and ys:
+                ax.scatter(xs, ys, c="red", s=20)
+
+        out_path = output_path or str(Path(geotiff_path).with_suffix(".overlay.png"))
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
-        return {"image_path": out_path, "success": True}
+        return {"raster_path": out_path, "success": True}
     except Exception as e:
-        return {"image_path": "", "success": False, "error": str(e)}
+        return {"raster_path": "", "success": False, "error": str(e)}
+
+
+def run(req):
+    return display_on_geotiff(
+        geotiff_path=req.geotiff_path,
+        features=getattr(req, "features", None),
+        output_path=getattr(req, "output_path", None),
+    )

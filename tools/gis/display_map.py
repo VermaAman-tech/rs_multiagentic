@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import contextily as ctx
 from pathlib import Path
 from shapely.geometry import Point
+from uuid import uuid4
 
 def run(req):
     try:
@@ -18,11 +19,11 @@ def run(req):
             ctx.add_basemap(ax, source=ctx.providers.CartoDB.Positron)
         except Exception:
             pass  # No internet — skip basemap
-            
-        out_path = getattr(req, "output_html", f"data/tmp/map_{hash(str(req))}.png").replace(".html", ".png")
+
+        out_path = str(Path("data/tmp") / f"map_{uuid4().hex[:8]}.png")
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close()
         return {"html_path": out_path, "success": True}
     except Exception as e:
-        return {"html_path": "data/tmp/map.png", "success": True}
+        return {"html_path": "", "success": False, "error": str(e)}

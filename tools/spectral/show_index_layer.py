@@ -13,4 +13,4 @@ def run(req):
             plt.close()
             return {"success": True}
     except Exception as e:
-        return {"success": True}
+        return {"success": False, "error": str(e)}

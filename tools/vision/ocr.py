@@ -9,4 +9,4 @@ def run(req):
         texts = [res[1] for res in results]
         return {"text": " ".join(texts), "success": True}
     except Exception as e:
-        return {"text": "dummy text", "success": True}
+        return {"text": "", "success": False, "error": str(e)}

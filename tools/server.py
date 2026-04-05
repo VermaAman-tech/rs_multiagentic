@@ -29,6 +29,7 @@ from tools.gis import (
     display_map,
     bbox_from_geotiff,
     display_geotiff,
+    display_on_geotiff,
 )
 from tools.spectral import add_index_layer, compute_index_change, show_index_layer
 from tools.math_tools import calculator as calculator_tool
@@ -54,6 +55,8 @@ def run_temporal_stack(req: TemporalStackLoaderInput):
         date_range=req.date_range,
         sensor=req.sensor,
         max_cloud_pct=req.max_cloud_pct,
+        local_stack_path=req.local_stack_path,
+        image_paths=req.image_paths,
     )
     return TemporalStackLoaderOutput(**res)
 
@@ -171,7 +174,7 @@ def run_display_geotiff(req: DisplayGeotiffInput):
 
 @app.post("/tools/DisplayOnGeotiff", response_model=DisplayOnGeotiffOutput)
 def run_display_on_geotiff_alias(req: DisplayOnGeotiffInput):
-    return DisplayOnGeotiffOutput(**display_geotiff.run(req))
+    return DisplayOnGeotiffOutput(**display_on_geotiff.run(req))
 
 
 # --- Spectral tools (3) ---

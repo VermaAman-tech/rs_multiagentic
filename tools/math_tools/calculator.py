@@ -8,6 +8,15 @@ def calculator(expression: str) -> dict:
     allowed = {
         "__builtins__": {},
         "math": math,
+        "sqrt": math.sqrt,
+        "sin": math.sin,
+        "cos": math.cos,
+        "tan": math.tan,
+        "log": math.log,
+        "log10": math.log10,
+        "exp": math.exp,
+        "pi": math.pi,
+        "e": math.e,
         "abs": abs,
         "round": round,
         "min": min,
@@ -19,6 +28,6 @@ def calculator(expression: str) -> dict:
     }
     try:
         result = float(eval(compile(expression, "<calc>", "eval"), allowed))
-        return {"result": result}
+        return {"result": result, "success": True}
     except Exception as exc:
-        return {"result": 0.0, "error": str(exc)}
+        return {"result": 0.0, "success": False, "error": str(exc)}

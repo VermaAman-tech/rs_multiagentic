@@ -3,6 +3,17 @@ from __future__ import annotations
 from typing import Any
 
 
+def _wkt_bbox(wkt_text: str) -> list[float] | None:
+    try:
+        from shapely import wkt as shapely_wkt  # type: ignore
+
+        geom = shapely_wkt.loads(wkt_text)
+        minx, miny, maxx, maxy = geom.bounds
+        return [float(minx), float(miny), float(maxx), float(maxy)]
+    except Exception:
+        return None
+
+
 PROTECTED_KEYS = ("damage_polygons", "flood_extent", "impassable_roads", "conflict_events")
 
 
@@ -20,6 +31,30 @@ def compress_context(items: dict[str, Any]) -> tuple[dict[str, Any], float]:
             compressed[key] = value
             safety_facts_before += 1
             safety_facts_after += 1
+            continue
+
+        if isinstance(value, dict) and isinstance(value.get("boundary_wkt"), str):
+            wkt = value.get("boundary_wkt", "")
+            compressed[key] = {
+                "boundary_summary": {
+                    "wkt_chars": len(wkt),
+                    "bbox": _wkt_bbox(wkt),
+                    "gpkg_path": value.get("gpkg_path"),
+                }
+            }
+            continue
+
+        if isinstance(value, dict) and isinstance(value.get("pois"), list):
+            pois = value.get("pois", [])
+            sample = []
+            for item in pois[:5]:
+                if isinstance(item, dict):
+                    sample.append({
+                        "name": item.get("name"),
+                        "lat": item.get("lat"),
+                        "lon": item.get("lon"),
+                    })
+            compressed[key] = {"pois_count": len(pois), "sample": sample}
             continue
 
         if "prithvi_embed_" in key:

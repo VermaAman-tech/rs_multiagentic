@@ -1,10 +1,13 @@
 import networkx as nx
 import osmnx as ox
 import geopandas as gpd
+from pathlib import Path
 
 def evacuation_route_planner(graph_path, origins, destinations, blocked_segments=None, mode="evacuation"):
     blocked_segments = blocked_segments or []
     try:
+        if not graph_path or not Path(graph_path).exists():
+            raise FileNotFoundError(f"Graph file not found: {graph_path}")
         import numpy as np
         
         # In a real environment we would load the nx Graph. 
@@ -34,4 +37,4 @@ def evacuation_route_planner(graph_path, origins, destinations, blocked_segments
             "success": True
         }
     except Exception as e:
-        return {"routes": [{"origin": "A", "destination": "B", "path": ["n1"], "avoided": [], "rss": 0.4, "length_km": 4.2}], "success": True}
+        return {"routes": [], "success": False, "error": str(e)}

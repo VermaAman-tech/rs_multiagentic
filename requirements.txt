@@ -22,3 +22,7 @@ networkx==3.4.2
 sympy==1.13.1
 gdown==5.2.0
 vllm==0.8.4
+streamlit==1.43.2
+tiktoken==0.9.0
+groundingdino-py==0.4.0
+easyocr==1.7.2
